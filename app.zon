@@ -1,0 +1,53 @@
+.{
+    .id = "dev.native_sdk.bioviewer",
+    .name = "bioviewer",
+    .display_name = "BioViewer",
+    .description = "Microscopy time-lapse viewer for Micro-Manager TIFF series, Carl Zeiss CZI, and Nikon ND2 datasets.",
+    .version = "0.1.0",
+    .platforms = .{"macos"},
+    .permissions = .{ "view", "command", "dialog", "filesystem" },
+    .capabilities = .{ "native_views", "gpu_surfaces" },
+    .images = .{
+        .max_image_pixel_bytes = 8388608,
+    },
+    .shortcuts = .{
+        .{ .id = "open-folder", .key = "o", .modifiers = .{"primary"} },
+    },
+    .shell = .{
+        .windows = .{
+            .{
+                .label = "main",
+                .title = "BioViewer",
+                .width = 1480,
+                .height = 920,
+                .min_width = 960,
+                .min_height = 600,
+                .restore_policy = "center_on_primary",
+                .titlebar = "hidden_inset_tall",
+                .views = .{
+                    .{
+                        .label = "bioviewer-canvas",
+                        .kind = "gpu_surface",
+                        .fill = true,
+                        .role = "BioViewer canvas",
+                        .accessibility_label = "BioViewer",
+                        .gpu_backend = "metal",
+                        .gpu_pixel_format = "bgra8_unorm",
+                        .gpu_present_mode = "timer",
+                        .gpu_alpha_mode = "opaque",
+                        .gpu_color_space = "srgb",
+                        .gpu_vsync = true,
+                    },
+                },
+            },
+        },
+    },
+    .security = .{
+        .navigation = .{
+            .allowed_origins = .{ "zero://app", "zero://inline" },
+            .external_links = .{ .action = "deny" },
+        },
+    },
+    .web_engine = "system",
+    .cef = .{ .dir = "third_party/cef/macos", .auto_install = false },
+}

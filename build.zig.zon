@@ -1,0 +1,19 @@
+.{
+    .name = .bioviewer_zig,
+    .fingerprint = 0xdb95648bbfc7d7dd,
+    .version = "0.1.0",
+    .minimum_zig_version = "0.16.0",
+    .dependencies = .{
+        .native_sdk = .{ .path = "../native" },
+        .czi = .{ .path = "../czi-zig" },
+        .nd2 = .{ .path = "../nd2-zig" },
+    },
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+        "assets",
+        "app.zon",
+        "README.md",
+    },
+}
