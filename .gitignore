@@ -1,0 +1,4 @@
+.zig-cache/
+zig-out/
+/skills/
+.DS_Store
