@@ -1,0 +1,150 @@
+<column background="background" foreground="text">
+  <!-- Top Header Toolbar -->
+  <row height="{titlebarHeight}" gap="8" cross="center" padding="10" background="surface" window-drag="true" label="BioViewer toolbar">
+    <spacer width="{chromeLeading}" />
+    <button size="sm" variant="outline" icon="arrow-up" on-press="navigate_up">Up</button>
+    <button size="sm" variant="outline" icon="folder-open" on-press="choose_folder">Choose folder</button>
+    <button size="sm" variant="primary" on-press="open_current_folder">Open series in this folder</button>
+    <text grow="1" wrap="false" foreground="text_muted">{browseDir}</text>
+  </row>
+  <separator />
+
+  <!-- Main 3-Column Body -->
+  <row grow="1">
+    <!-- Left Sidebar: Folders & Positions -->
+    <column width="300" padding="12" gap="10" background="surface" label="Navigation sidebar">
+      <toggle-group gap="4" label="Sidebar mode">
+        <toggle-button size="sm" selected="{showFolderBrowser}" on-toggle="show_folders" icon="folder">Folders</toggle-button>
+        <toggle-button size="sm" selected="{showPositionsBrowser}" on-toggle="show_positions">Positions ({positionCount})</toggle-button>
+      </toggle-group>
+
+      <if test="{showFolderBrowser}">
+        <column grow="1" gap="8">
+          <text wrap="true" foreground="text_muted">Click a folder to enter it. Click a .tif, .czi, or .nd2 file to open.</text>
+          <scroll grow="1" overscroll="none" label="Folder entries">
+            <list gap="4" label="Directory entries">
+              <for each="dirEntries" key="path" as="entry">
+                <if test="{entry.is_dir}">
+                  <list-item icon="folder" on-press="activate_dir_entry:{entry.index}" label="{entry.name}">
+                    <text grow="1" wrap="false">{entry.name}</text>
+                  </list-item>
+                </if>
+                <else>
+                  <list-item icon="file-text" on-press="activate_dir_entry:{entry.index}" label="{entry.name}">
+                    <text grow="1" wrap="false" foreground="text_muted">{entry.name}</text>
+                  </list-item>
+                </else>
+              </for>
+            </list>
+          </scroll>
+        </column>
+      </if>
+      <else>
+        <scroll grow="1" overscroll="none" label="Positions list">
+          <list gap="4" label="Series positions">
+            <for each="positionItems" key="name" as="pos">
+              <list-item selected="{pos.selected}" on-press="select_position:{pos.index}" label="{pos.name}">
+                <text grow="1" wrap="false">{pos.name}</text>
+              </list-item>
+            </for>
+          </list>
+        </scroll>
+      </else>
+    </column>
+
+    <separator />
+
+    <!-- Center Image Viewport -->
+    <stack grow="1" background="background" label="Image viewport">
+      <if test="{hasFrame}">
+        <scroll grow="1" overscroll="none" label="Frame viewport scroll">
+          <column grow="1" main="center" cross="center" padding="16">
+            <image image="{frameImageId}" width="{displayWidth}" height="{displayHeight}" label="Microscopy composite frame" />
+          </column>
+        </scroll>
+      </if>
+      <else>
+        <column grow="1" gap="12" main="center" cross="center" padding="32">
+          <icon name="eye" width="40" height="40" foreground="text_muted" />
+          <text size="heading">BioViewer Microscopy</text>
+          <text foreground="text_muted">{status}</text>
+          <button variant="primary" icon="folder-open" on-press="choose_folder">Open Microscopy Folder…</button>
+        </column>
+      </else>
+    </stack>
+
+    <separator />
+
+    <!-- Right Sidebar: Channel Controls -->
+    <column width="360" padding="12" gap="10" background="surface" label="Channel controls">
+      <text>Channels</text>
+      <scroll grow="1" overscroll="none" label="Channels scroll">
+        <column gap="10">
+          <for each="channelViews" key="channel" as="ch">
+            <card padding="10">
+              <column gap="8">
+                <row gap="8" cross="center">
+                  <checkbox checked="{ch.enabled}" on-toggle="toggle_channel:{ch.index}" text="{ch.name}" />
+                  <spacer grow="1" />
+                  <badge>{ch.colorBadge}</badge>
+                  <button size="sm" variant="outline" on-press="auto_contrast:{ch.index}" label="{ch.autoLabel}">Auto</button>
+                </row>
+                <text wrap="false" foreground="text_muted">{ch.detail}</text>
+                <text wrap="false" foreground="text_muted">{ch.windowSummary}</text>
+
+                <row gap="6" cross="center">
+                  <text width="44" foreground="text_muted">Black</text>
+                  <slider grow="1" value="{ch.lowFraction}" on-change="sync_sliders" label="{ch.lowSliderLabel}" />
+                </row>
+                <row gap="6" cross="center">
+                  <text width="44" foreground="text_muted">White</text>
+                  <slider grow="1" value="{ch.highFraction}" on-change="sync_sliders" label="{ch.highSliderLabel}" />
+                </row>
+                <row gap="6" cross="center">
+                  <text width="44" foreground="text_muted">Gain</text>
+                  <slider grow="1" value="{ch.gainFraction}" on-change="sync_sliders" label="{ch.gainSliderLabel}" />
+                  <text width="44" text-alignment="end" foreground="text_muted">{ch.gainText}</text>
+                </row>
+
+                <row gap="4" cross="center">
+                  <button size="sm" variant="outline" on-press="set_preset_bf:{ch.index}" label="{ch.bfLabel}">BF</button>
+                  <button size="sm" variant="outline" on-press="set_preset_dapi:{ch.index}" label="{ch.dapiLabel}">DAPI</button>
+                  <button size="sm" variant="outline" on-press="set_preset_fitc:{ch.index}" label="{ch.fitcLabel}">FITC</button>
+                  <button size="sm" variant="outline" on-press="set_preset_cy3:{ch.index}" label="{ch.cy3Label}">Cy3</button>
+                  <button size="sm" variant="outline" on-press="set_preset_cy5:{ch.index}" label="{ch.cy5Label}">Cy5</button>
+                </row>
+              </column>
+            </card>
+          </for>
+        </column>
+      </scroll>
+    </column>
+  </row>
+
+  <separator />
+
+  <!-- Bottom Transport & Status Bar -->
+  <column gap="8" padding="10" background="surface" label="Transport bar">
+    <row gap="8" cross="center">
+      <button size="sm" variant="outline" icon="skip-back" on-press="step_prev_time">Prev</button>
+      <button size="sm" variant="primary" on-press="toggle_play">{playButtonLabel}</button>
+      <button size="sm" variant="outline" icon="skip-forward" on-press="step_next_time">Next</button>
+      <slider grow="1" value="{timeFraction}" on-change="sync_sliders" label="Time scrubber" />
+      <button size="sm" variant="outline" on-press="zoom_out" label="Zoom out">-</button>
+      <button size="sm" variant="outline" on-press="zoom_fit" label="Reset zoom to 100%">{zoomLabel}</button>
+      <button size="sm" variant="outline" on-press="zoom_in" label="Zoom in">+</button>
+    </row>
+
+    <row gap="8" cross="center">
+      <if test="{hasMultipleZs}">
+        <row gap="4" cross="center">
+          <for each="zItems" key="z" as="zitem">
+            <toggle-button size="sm" selected="{zitem.selected}" on-toggle="select_z:{zitem.index}">{zitem.label}</toggle-button>
+          </for>
+        </row>
+      </if>
+      <text grow="1" wrap="false" foreground="text_muted">{status}</text>
+      <text wrap="false" foreground="text_muted">Left/Right step time · Up/Down step position · Space plays</text>
+    </row>
+  </column>
+</column>
